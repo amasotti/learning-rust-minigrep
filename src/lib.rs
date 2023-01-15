@@ -151,6 +151,11 @@ pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
             results.push(result);
         }
     }
+
+    if results.len() == 0 {
+        println!("---> No results found");
+    }
+
     results
 }
 

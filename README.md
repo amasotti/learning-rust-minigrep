@@ -22,6 +22,8 @@ The project is structured as follows:
 
 ## Usage
 
+
+
 ```bash
 $ minigrep <search_string> <file_name>
 ```

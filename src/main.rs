@@ -17,5 +17,4 @@ fn main() {
         eprintln!("Application error: {}", e);
         std::process::exit(1);
     }
-
 }

@@ -97,10 +97,7 @@ pub struct SearchResult {
 
 impl SearchResult {
     pub fn new(line: String, line_number: usize) -> SearchResult {
-        SearchResult {
-            line,
-            line_number,
-        }
+        SearchResult { line, line_number }
     }
 }
 
@@ -128,7 +125,6 @@ pub fn read_file(config: &Config) -> Result<String, io::Error> {
     Ok(contents)
 }
 
-
 pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     // Read the file content
     let contents = read_file(&config)?;
@@ -136,7 +132,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
 
     let mut counter = 1;
     for result in search(&config.query, &contents) {
-        println!("Finding #{} at line {} :: {}", counter, &result.line_number, &result.line);
+        println!(
+            "Finding #{} at line {} :: {}",
+            counter, &result.line_number, &result.line
+        );
         counter += 1;
     }
 
@@ -144,10 +143,10 @@ pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
 }
 
 pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
-    let mut results : Vec<SearchResult> = Vec::new();
+    let mut results: Vec<SearchResult> = Vec::new();
     for (i, line) in contents.lines().enumerate() {
         if line.contains(query) {
-            let result = SearchResult::new(line.to_string(), i+1);
+            let result = SearchResult::new(line.to_string(), i + 1);
             results.push(result);
         }
     }
@@ -158,7 +157,6 @@ pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
 
     results
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -215,5 +213,16 @@ Pick three.";
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].line, "needle in the haystack");
         assert_eq!(result[0].line_number, 3);
+    }
+
+    #[test]
+    fn run_test_no_results() {
+        let query = "needle";
+        let content = "\
+Rust:
+safe, fast, productive.
+Pick three.";
+        let result = search(query, content);
+        assert_eq!(result.len(), 0);
     }
 }

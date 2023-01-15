@@ -89,6 +89,21 @@ impl Config {
         Ok(Config::new(&args[1].clone(), &args[2].clone()))
     }
 }
+
+pub struct SearchResult {
+    pub line: String,
+    pub line_number: usize,
+}
+
+impl SearchResult {
+    pub fn new(line: String, line_number: usize) -> SearchResult {
+        SearchResult {
+            line,
+            line_number,
+        }
+    }
+}
+
 /// Parse the command line arguments into a Config struct
 ///
 /// # Arguments
@@ -120,19 +135,20 @@ pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     //println!("With text:\n{}", contents);
 
     let mut counter = 1;
-    for line in search(&config.query, &contents) {
-        println!("Finding #{}: {}", counter, line);
+    for result in search(&config.query, &contents) {
+        println!("Finding #{} at line {} :: {}", counter, &result.line_number, &result.line);
         counter += 1;
     }
 
     Ok(())
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
-    let mut results = Vec::new();
-    for lines in contents.lines() {
-        if lines.contains(query) {
-            results.push(lines);
+pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
+    let mut results : Vec<SearchResult> = Vec::new();
+    for (i, line) in contents.lines().enumerate() {
+        if line.contains(query) {
+            let result = SearchResult::new(line.to_string(), i+1);
+            results.push(result);
         }
     }
     results
@@ -190,6 +206,9 @@ Rust:
 safe, fast, productive.
 needle in the haystack
 Pick three.";
-        assert_eq!(vec!["needle in the haystack"], search(query, content));
+        let result = search(query, content);
+        assert_eq!(result.len(), 1);
+        assert_eq!(result[0].line, "needle in the haystack");
+        assert_eq!(result[0].line_number, 3);
     }
 }

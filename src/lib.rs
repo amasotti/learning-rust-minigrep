@@ -75,9 +75,9 @@ impl Config {
     ///
     /// If the number of arguments is not 3
     ///
-    pub fn new_from_args(args: &[String], dbg: bool) -> Result<Config, &str> {
+    pub fn new_from_args(args: &[String], dbg: bool) -> Result<Config, &'static str> {
         if args.len() < 3 {
-            return Err("not enough arguments");
+            return Err("Not enough arguments. USAGE is: minigrep <query> <filename>");
         }
 
         if dbg {

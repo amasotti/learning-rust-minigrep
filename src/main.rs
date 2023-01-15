@@ -1,5 +1,4 @@
 use std::env;
-use std::fs;
 use minigrep::{Config};
 
 /// Main entry point for the mini grep cli tool

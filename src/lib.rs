@@ -1,5 +1,4 @@
 use std::{fs, io};
-//use std::io::Error;
 
 /// Simple struct to hold the configuration for the mini grep cli tool
 ///
@@ -39,7 +38,10 @@ impl Config {
     ///
     /// ```
     pub fn new(query: &str, filename: &str) -> Config {
-        Config { query: query.to_string(), filename: filename.to_string()}
+        Config {
+            query: query.to_string(),
+            filename: filename.to_string(),
+        }
     }
 
     /// Create a new Config instance from a vector of arguments
@@ -104,7 +106,6 @@ pub fn parse_config(args: &[String]) -> Config {
         Ok(c) => c,
         Err(e) => panic!("Error while parsing the cli arguments: {}", e),
     }
-
 }
 
 pub fn read_file(config: &Config) -> Result<String, io::Error> {
@@ -112,8 +113,6 @@ pub fn read_file(config: &Config) -> Result<String, io::Error> {
     println!("With text:\n{}", contents);
     Ok(contents)
 }
-
-
 
 #[cfg(test)]
 mod tests {

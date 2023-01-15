@@ -110,7 +110,6 @@ pub fn parse_config(args: &[String]) -> Config {
 
 pub fn read_file(config: &Config) -> Result<String, io::Error> {
     let contents = fs::read_to_string(&config.filename)?;
-    println!("With text:\n{}", contents);
     Ok(contents)
 }
 
@@ -130,7 +129,7 @@ mod tests {
     #[should_panic]
     fn parse_config_with_error() {
         let test_args = vec!["query".to_string(), "filename".to_string()];
-        let config = parse_config(&test_args);
+        parse_config(&test_args);
     }
 
     #[test]

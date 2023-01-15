@@ -5,5 +5,9 @@ use std::env;
 fn main() {
     let arguments: Vec<String> = env::args().collect();
     let config: Config = Config::new_from_args(&arguments, false).unwrap();
-    minigrep::read_file(&config);
+    let contents = match minigrep::read_file(&config) {
+        Ok(c) => c,
+        Err(e) => panic!("Error reading file: {}", e),
+    };
+    println!("With text:\n{}", contents);
 }

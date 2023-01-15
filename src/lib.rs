@@ -158,6 +158,22 @@ pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
     results
 }
 
+pub fn search_case_insensitive(query: &str, contents: &str) -> Vec<SearchResult> {
+    let mut results: Vec<SearchResult> = Vec::new();
+    for (i, line) in contents.lines().enumerate() {
+        if line.to_lowercase().contains(&query.to_lowercase()) {
+            let result = SearchResult::new(line.to_string(), i + 1);
+            results.push(result);
+        }
+    }
+
+    if results.len() == 0 {
+        println!("---> No results found");
+    }
+
+    results
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -224,5 +240,20 @@ safe, fast, productive.
 Pick three.";
         let result = search(query, content);
         assert_eq!(result.len(), 0);
+    }
+
+
+    #[test]
+    fn run_case_insensitive_search() {
+        let query = "NEEDLE";
+        let content = "\
+Rust:
+safe, fast, productive.
+needle in the haystack
+Pick three.";
+        let result = search_case_insensitive(query, content);
+        assert_eq!(result.len(), 1, "Expected 1 result, got {}", result.len());
+        assert_eq!(result[0].line, "needle in the haystack", "Expected 'needle in the haystack', got {}", result[0].line);
+        assert_eq!(result[0].line_number, 3, "Expected line number 3, got {}", result[0].line_number);
     }
 }

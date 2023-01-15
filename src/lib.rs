@@ -20,6 +20,9 @@ impl Config {
     ///
     /// * `query` - The string to search for
     /// * `filename` - The file to search in (as string filepath)
+    /// * `ignore_case` - Whether to ignore case when searching
+    ///
+    /// The `ignore_case` argument reads the `MINIGREP_IGNORE_CASE` environment variable
     ///
     /// # Examples
     ///
@@ -35,7 +38,8 @@ impl Config {
         Config {
             query: query.to_string(),
             filename: filename.to_string(),
-            ignore_case: env::var("MINIGREP_IGNORE_CASE").is_ok() && env::var("MINIGREP_IGNORE_CASE").unwrap() == "1",
+            ignore_case: env::var("MINIGREP_IGNORE_CASE").is_ok()
+                && env::var("MINIGREP_IGNORE_CASE").unwrap() == "1",
         }
     }
 
@@ -76,7 +80,6 @@ impl Config {
         }
 
         if dbg {
-            println!("args: {:?}", args);
             println!("Searching for {}", &args[1].clone());
             println!("In file {}", &args[2].clone());
         }
@@ -85,12 +88,35 @@ impl Config {
     }
 }
 
+/// SearchResult is a simple struct to hold the results of a search
+/// It contains the line number and the line itself
+///
+/// # Properties
+///
+/// * `line_number` - The line number
+/// * `line` - The line itself
+///
+/// # Examples
+///
+/// ```
+/// use minigrep::SearchResult;
+///
+/// let result = SearchResult::new(String::from("Hello world!"), 1);
+/// assert_eq!(result.line_number, 1);
+///
+/// ```
 pub struct SearchResult {
     pub line: String,
     pub line_number: usize,
 }
 
 impl SearchResult {
+    /// Create a new SearchResult instance
+    /// # Arguments
+    ///
+    /// * `line` - The line that was found
+    /// * `line_number` - The line number of the line that was found
+    ///
     pub fn new(line: String, line_number: usize) -> SearchResult {
         SearchResult { line, line_number }
     }
@@ -115,11 +141,33 @@ pub fn parse_config(args: &[String]) -> Config {
     }
 }
 
+/// `read_file` reads the contents of a file into a string
+///
+/// # Arguments
+///
+/// * `filename` - The file to read
+///
+/// # Returns
+///
+/// A string containing the contents of the file or an error
+///
 pub fn read_file(config: &Config) -> Result<String, io::Error> {
     let contents = fs::read_to_string(&config.filename)?;
     Ok(contents)
 }
 
+/// `run` is the main entry point for the mini grep cli tool
+/// given a [Config] created before, it will read the file and search for the query string
+///
+/// # Arguments
+///
+/// * `config` - A [Config] struct
+///
+/// # Returns
+///
+/// A [Result] containing a vector of [SearchResult] or an error.
+/// The search function is agnostic about the type of Error, it uses [Box] with a dynamic
+/// dispatch to handle the error
 pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     // Read the file content
     let contents = read_file(&config)?;
@@ -143,6 +191,17 @@ pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+/// `search` searches for a query string in a string
+/// It returns a vector of [SearchResult]
+///
+/// # Arguments
+///
+/// * `query` - The string to search for
+/// * `contents` - The string to search in
+///
+/// # Returns
+///
+/// A vector of [SearchResult]
 pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
     let mut results: Vec<SearchResult> = Vec::new();
     for (i, line) in contents.lines().enumerate() {
@@ -159,6 +218,17 @@ pub fn search(query: &str, contents: &str) -> Vec<SearchResult> {
     results
 }
 
+/// `search_case_insensitive` searches for a query string in a string. It's very similar
+/// to [search] but it ignores the case of the query and the contents
+///
+/// # Arguments
+///
+/// * `query` - The string to search for
+/// * `contents` - The string to search in
+///
+/// # Returns
+///
+/// A vector of [SearchResult]
 pub fn search_case_insensitive(query: &str, contents: &str) -> Vec<SearchResult> {
     let mut results: Vec<SearchResult> = Vec::new();
     for (i, line) in contents.lines().enumerate() {
@@ -243,7 +313,6 @@ Pick three.";
         assert_eq!(result.len(), 0);
     }
 
-
     #[test]
     fn run_case_insensitive_search() {
         let query = "NEEDLE";
@@ -254,7 +323,15 @@ needle in the haystack
 Pick three.";
         let result = search_case_insensitive(query, content);
         assert_eq!(result.len(), 1, "Expected 1 result, got {}", result.len());
-        assert_eq!(result[0].line, "needle in the haystack", "Expected 'needle in the haystack', got {}", result[0].line);
-        assert_eq!(result[0].line_number, 3, "Expected line number 3, got {}", result[0].line_number);
+        assert_eq!(
+            result[0].line, "needle in the haystack",
+            "Expected 'needle in the haystack', got {}",
+            result[0].line
+        );
+        assert_eq!(
+            result[0].line_number, 3,
+            "Expected line number 3, got {}",
+            result[0].line_number
+        );
     }
 }

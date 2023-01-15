@@ -113,6 +113,32 @@ pub fn read_file(config: &Config) -> Result<String, io::Error> {
     Ok(contents)
 }
 
+
+pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
+    // Read the file content
+    let contents = read_file(&config)?;
+    //println!("With text:\n{}", contents);
+
+    let mut counter = 1;
+    for line in search(&config.query, &contents) {
+        println!("Finding #{}: {}", counter, line);
+        counter += 1;
+    }
+
+    Ok(())
+}
+
+pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+    let mut results = Vec::new();
+    for lines in contents.lines() {
+        if lines.contains(query) {
+            results.push(lines);
+        }
+    }
+    results
+}
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -154,5 +180,16 @@ mod tests {
         if config.is_err() {
             panic!("Not enough arguments");
         }
+    }
+
+    #[test]
+    fn run_test() {
+        let query = "needle";
+        let content = "\
+Rust:
+safe, fast, productive.
+needle in the haystack
+Pick three.";
+        assert_eq!(vec!["needle in the haystack"], search(query, content));
     }
 }

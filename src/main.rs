@@ -13,16 +13,9 @@ fn main() {
     });
 
     // Run the program
-    run(config);
+    if let Err(e) = minigrep::run(config) {
+        eprintln!("Application error: {}", e);
+        std::process::exit(1);
+    }
 
-}
-
-
-fn run(config: Config)  {
-    // Read the file content
-    let contents = match minigrep::read_file(&config) {
-        Ok(c) => c,
-        Err(e) => panic!("Error reading file: {}", e),
-    };
-    println!("With text:\n{}", contents);
 }

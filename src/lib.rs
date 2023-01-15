@@ -1,4 +1,4 @@
-use std::{fs, io};
+use std::{env, fs, io};
 
 /// Simple struct to hold the configuration for the mini grep cli tool
 ///
@@ -7,16 +7,10 @@ use std::{fs, io};
 /// * `query` - The string to search for
 /// * `filename` - The file to search in (as string filepath)
 ///
-/// # Examples
-///
-/// ```
-/// use minigrep::Config;
-///
-/// let config = Config {query: String::from("needle"), filename: String::from("bar.txt")};
-/// ```
 pub struct Config {
     pub query: String,
     pub filename: String,
+    pub ignore_case: bool,
 }
 
 impl Config {
@@ -41,6 +35,7 @@ impl Config {
         Config {
             query: query.to_string(),
             filename: filename.to_string(),
+            ignore_case: env::var("MINIGREP_IGNORE_CASE").is_ok() && env::var("MINIGREP_IGNORE_CASE").unwrap() == "1",
         }
     }
 
@@ -131,7 +126,13 @@ pub fn run(config: Config) -> Result<(), Box<dyn std::error::Error>> {
     //println!("With text:\n{}", contents);
 
     let mut counter = 1;
-    for result in search(&config.query, &contents) {
+    let results = if config.ignore_case {
+        search_case_insensitive(&config.query, &contents)
+    } else {
+        search(&config.query, &contents)
+    };
+
+    for result in results {
         println!(
             "Finding #{} at line {} :: {}",
             counter, &result.line_number, &result.line

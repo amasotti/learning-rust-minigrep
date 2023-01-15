@@ -30,3 +30,16 @@ The project is structured as follows:
 $ minigrep <search_string> <file_name>
 ```
 
+The search is per default *case sensitive*. But you can export an environment variable to make it *case insensitive*:
+
+```bash
+$ export MINIGREP_IGNORE_CASE=1
+$ minigrep <search_string> <file_name>
+```
+
+or simply
+
+```bash
+$ MINIGREP_IGNORE_CASE=1 minigrep <search_string> <file_name>
+```
+
